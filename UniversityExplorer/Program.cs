@@ -1,4 +1,6 @@
 using UniversityExplorer.Components;
+using UniversityExplorer.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddHttpClient<CountryService>(client =>
+    client.BaseAddress = new Uri("https://countries.dev/"));
+
+builder.Services.AddHttpClient<UniversityService>(client =>
+    client.BaseAddress = new Uri("http://universities.hipolabs.com/"));
+
+builder.Services.AddHttpClient<StudentApplicationService>(client =>
+    client.BaseAddress = new Uri("https://edutots.net/api/"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
