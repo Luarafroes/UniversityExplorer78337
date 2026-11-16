@@ -1,5 +1,4 @@
-﻿
-@page "/student-applications/create"
+﻿@page "/student-applications/create"
 @inject StudentApplicationService ApplicationService
 @inject NavigationManager Navigation
 
@@ -113,10 +112,31 @@
 </div>
 
 @code {
+    // Optional values from the URL: /student-applications/create?country=...&university=...
+    [Parameter, SupplyParameterFromQuery(Name = "country")]
+    public string? CountryName { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "university")]
+    public string? UniversityName { get; set; }
+
     private StudentApplication application = new();
     private bool isSaving;
     private string? successMessage;
     private string? errorMessage;
+
+    // Runs when the page opens: pre-fill the form if we came from a university page
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(CountryName))
+        {
+            application.Country = CountryName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(UniversityName))
+        {
+            application.University = UniversityName;
+        }
+    }
 
     private async Task SubmitApplication(StudentApplication newApplication)
     {

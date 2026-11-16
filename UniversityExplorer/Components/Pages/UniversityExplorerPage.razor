@@ -1,228 +1,118 @@
-﻿
-@page "/university-explorer"
+﻿@page "/university-explorer"
 @inject CountryService CountryService
 @inject UniversityService UniversityService
+@inject NavigationManager Navigation
 
-<PageTitle>University Explorer | Discover Universities</PageTitle>
+<PageTitle>University Explorer</PageTitle>
 
-<div class="container py-4">
+<div class="mb-4">
+    <h1 class="mb-1">University Explorer</h1>
+    <p class="text-muted mb-0">Choose a country to see its details and the universities there.</p>
+</div>
 
-    <!-- Header -->
-    <div class="mb-4">
-        <span class="text-primary fw-semibold small text-uppercase">
-            EXPLORE THE WORLD
-        </span>
-        <h1 class="fw-bold mb-2" style="color: #183653;">
-            University Explorer
-        </h1>
-        <p class="text-muted mb-0">
-            Discover universities, explore countries and find your next academic destination.
-        </p>
-    </div>
+@* Country dropdown *@
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <label for="countrySelect" class="form-label fw-semibold">Country</label>
 
-    <!-- Country Selector -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-4">
-
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="rounded-3 p-3"
-                     style="background: #E7F1FA;">
-                    <span class="fs-3">🌍</span>
-                </div>
-                <div>
-                    <h5 class="fw-bold mb-1" style="color: #183653;">
-                        Choose your destination
-                    </h5>
-                    <p class="text-muted small mb-0">
-                        Select a country to discover its universities.
-                    </p>
-                </div>
+        @if (isLoadingCountries)
+        {
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                <span>Loading countries...</span>
             </div>
+        }
+        else if (countriesError)
+        {
+            <div class="alert alert-danger mb-0">
+                Unable to retrieve countries. Please try again later.
+            </div>
+        }
+        else
+        {
+            <select id="countrySelect" class="form-select form-select-lg"
+                    value="@selectedCountryName" @onchange="OnCountryChanged">
+                <option value="">Select Country</option>
+                @foreach (var country in countries)
+                {
+                    <option value="@country.Name">@country.Name</option>
+                }
+            </select>
+        }
+    </div>
+</div>
 
-            @if (isLoadingCountries)
+@* Country details + universities (the mashup) *@
+@if (selectedCountry != null)
+{
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <CountryDetails Country="selectedCountry" />
+        </div>
+
+        <div class="col-lg-8">
+            <h3 class="mb-3">Universities in @selectedCountry.Name</h3>
+
+            @if (isLoadingUniversities)
             {
-                <div class="d-flex align-items-center py-2">
-                    <div class="spinner-border spinner-border-sm text-primary me-2"
-                         role="status"></div>
-                    <span class="text-muted">Loading countries...</span>
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span>Loading universities...</span>
                 </div>
             }
-            else if (countriesError)
+            else if (universitiesError)
             {
-                <div class="alert alert-danger rounded-3 mb-0">
-                    Unable to retrieve countries. Please try again later.
+                <div class="alert alert-danger">
+                    Unable to retrieve universities. Please try again later.
+                </div>
+            }
+            else if (universities.Count == 0)
+            {
+                <div class="alert alert-info">
+                    No universities found for @selectedCountry.Name.
                 </div>
             }
             else
             {
-                <label for="countrySelect" class="form-label fw-semibold">
-                    Select Country
-                </label>
+                var filtered = FilteredUniversities.ToList();
 
-                <select id="countrySelect"
-                        class="form-select form-select-lg rounded-3"
-                        value="@selectedCountryName"
-                        @onchange="OnCountryChanged">
+                <input class="form-control form-control-lg mb-2"
+                       @bind="SearchText" @bind:event="oninput"
+                       placeholder="Search university..." />
 
-                    <option value="">Choose a country...</option>
+                <p class="text-muted small">Showing @filtered.Count of @universities.Count universities</p>
 
-                    @foreach (var country in countries)
-                    {
-                        <option value="@country.Name">@country.Name</option>
-                    }
-                </select>
-            }
-        </div>
-    </div>
-
-    <!-- Selected Country -->
-    @if (selectedCountry != null)
-    {
-        <div class="row g-4">
-
-            <!-- Country Details -->
-            <div class="col-lg-4">
-
-                <div class="mb-3">
-                    <h5 class="fw-bold" style="color: #183653;">
-                        Destination Information
-                    </h5>
-                    <p class="text-muted small">
-                        Learn more about your selected country.
-                    </p>
-                </div>
-
-                <CountryDetails Country="selectedCountry" />
-
-                @if (selectedUniversity != null)
+                @if (filtered.Count == 0)
                 {
-                    <div class="mt-4">
-                        <UniversityDetails
-                            University="selectedUniversity"
-                            OnClose="CloseUniversityDetails" />
-                    </div>
-                }
-
-            </div>
-
-            <!-- Universities -->
-            <div class="col-lg-8">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h4 class="fw-bold mb-1" style="color: #183653;">
-                            Universities
-                        </h4>
-                        <p class="text-muted small mb-0">
-                            Explore institutions in @selectedCountry.Name.
-                        </p>
-                    </div>
-                </div>
-
-                @if (isLoadingUniversities)
-                {
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center py-5">
-                            <div class="spinner-border text-primary mb-3"
-                                 role="status"></div>
-                            <p class="text-muted mb-0">
-                                Finding universities...
-                            </p>
-                        </div>
-                    </div>
-                }
-                else if (universitiesError)
-                {
-                    <div class="alert alert-danger rounded-4">
-                        Unable to retrieve universities. Please try again later.
-                    </div>
-                }
-                else if (universities.Count == 0)
-                {
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center py-5">
-                            <div class="display-4 mb-3">🏛️</div>
-                            <h5 class="fw-bold">No universities found</h5>
-                            <p class="text-muted mb-0">
-                                We couldn't find universities for this country.
-                            </p>
-                        </div>
-                    </div>
+                    <div class="alert alert-warning">No universities match "@SearchText".</div>
                 }
                 else
                 {
-                    var filtered = FilteredUniversities.ToList();
-
-                    <!-- Search -->
-                    <div class="card border-0 shadow-sm rounded-4 mb-3">
-                        <div class="card-body p-3">
-                            <label for="universitySearch"
-                                   class="form-label fw-semibold small">
-                                Search Universities
-                            </label>
-
-                            <input id="universitySearch"
-                                   class="form-control rounded-3"
-                                   @bind="SearchText"
-                                   @bind:event="oninput"
-                                   placeholder="Type a university name..." />
-
-                            <p class="text-muted small mt-2 mb-0">
-                                Showing @filtered.Count of @universities.Count universities
-                            </p>
-                        </div>
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        @foreach (var uni in filtered)
+                        {
+                            <div class="col">
+                                <UniversityCard University="uni" OnSelect="ShowUniversityDetails" />
+                            </div>
+                        }
                     </div>
-
-                    @if (filtered.Count == 0)
-                    {
-                        <div class="alert alert-warning rounded-4">
-                            No universities match "@SearchText".
-                            Try another search.
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="row row-cols-1 row-cols-md-2 g-3">
-
-                            @foreach (var uni in filtered)
-                            {
-                                <div class="col">
-                                    <UniversityCard
-                                        University="uni"
-                                        OnSelect="ShowUniversityDetails" />
-                                </div>
-                            }
-
-                        </div>
-                    }
                 }
-
-            </div>
+            }
         </div>
-    }
-    else if (!isLoadingCountries && !countriesError)
-    {
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body text-center py-5">
-                <div class="display-3 mb-3">🧭</div>
-                <h4 class="fw-bold" style="color: #183653;">
-                    Where would you like to study?
-                </h4>
-                <p class="text-muted mb-0">
-                    Choose a country above to start exploring universities.
-                </p>
-            </div>
-        </div>
-    }
-
-</div>
+    </div>
+}
+else if (!isLoadingCountries && !countriesError)
+{
+    <div class="text-center text-muted py-5">
+        <h4>👆 Select a country to get started</h4>
+    </div>
+}
 
 @code {
     private List<Country> countries = new();
     private List<University> universities = new();
 
     private Country? selectedCountry;
-    private University? selectedUniversity;
     private string? selectedCountryName;
 
     private bool isLoadingCountries = true;
@@ -230,13 +120,14 @@
     private bool countriesError;
     private bool universitiesError;
 
+    // Typing in the search box updates this on every key press
     public string SearchText { get; set; } = "";
 
+    // The list after applying the search text
     private IEnumerable<University> FilteredUniversities =>
-        universities.Where(u =>
-            !string.IsNullOrWhiteSpace(u.Name) &&
-            u.Name.Contains(SearchText ?? "", StringComparison.OrdinalIgnoreCase));
+        universities.Where(u => u.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
+    // Runs once when the page opens: load all countries
     protected override async Task OnInitializedAsync()
     {
         try
@@ -253,27 +144,24 @@
         }
     }
 
+    // Runs every time the user picks a country
     private async Task OnCountryChanged(ChangeEventArgs e)
     {
         selectedCountryName = e.Value?.ToString();
+        selectedCountry = countries.FirstOrDefault(c => c.Name == selectedCountryName);
 
-        selectedCountry = countries.FirstOrDefault(
-            c => c.Name == selectedCountryName);
-
-        selectedUniversity = null;
+        // Reset everything that belonged to the previous country
         universities = new List<University>();
         SearchText = "";
         universitiesError = false;
 
-        if (selectedCountry == null)
-            return;
+        if (selectedCountry == null) return;
 
+        // Second API call: universities for this country
         isLoadingUniversities = true;
-
         try
         {
-            universities = await UniversityService.GetUniversitiesAsync(
-                selectedCountry.Name);
+            universities = await UniversityService.GetUniversitiesAsync(selectedCountry.Name);
         }
         catch
         {
@@ -285,13 +173,10 @@
         }
     }
 
+    // EventCallback from UniversityCard: go straight to the full page
     private void ShowUniversityDetails(University university)
     {
-        selectedUniversity = university;
-    }
-
-    private void CloseUniversityDetails()
-    {
-        selectedUniversity = null;
+        Navigation.NavigateTo(
+            $"/university-details?country={Uri.EscapeDataString(university.Country)}&name={Uri.EscapeDataString(university.Name)}");
     }
 }

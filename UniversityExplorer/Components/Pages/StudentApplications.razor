@@ -1,12 +1,11 @@
-﻿
-@page "/student-applications"
+﻿@page "/student-applications"
 @inject StudentApplicationService ApplicationService
 
 <PageTitle>My Applications | University Explorer</PageTitle>
 
 <div class="container py-4">
 
-    <!-- Page Header -->
+    @* Page Header *@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
             <span class="text-primary fw-semibold small text-uppercase">
@@ -26,48 +25,44 @@
         </a>
     </div>
 
-    <!-- Application Counter -->
+    @* Application Counter *@
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4 d-flex align-items-center gap-3">
-            <div class="rounded-3 p-3"
-                 style="background: #E7F1FA;">
+            <div class="rounded-3 p-3" style="background: #E7F1FA;">
                 <span class="fs-3">📋</span>
             </div>
             <div>
                 <h3 class="fw-bold mb-0" style="color: #183653;">
-                    @applications.Count
+                    @(isLoading ? "…" : applications.Count.ToString())
                 </h3>
                 <span class="text-muted">Total Applications</span>
             </div>
         </div>
     </div>
 
-    <!-- Loading State -->
     @if (isLoading)
     {
+        @* Loading State *@
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body text-center py-5">
-                <div class="spinner-border text-primary mb-3"
-                     role="status"></div>
+                <div class="spinner-border text-primary mb-3" role="status"></div>
                 <p class="text-muted mb-0">
                     Loading your applications...
                 </p>
             </div>
         </div>
     }
-
-    <!-- Error State -->
     else if (hasError)
     {
+        @* Error State *@
         <div class="alert alert-danger rounded-4">
             <h5 class="fw-bold">Something went wrong</h5>
-            Unable to retrieve your applications. Please try again later.
+            Unable to retrieve data. Please try again later.
         </div>
     }
-
-    <!-- Empty State -->
     else if (applications.Count == 0)
     {
+        @* Empty State *@
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body text-center py-5">
                 <div class="display-3 mb-3">🎓</div>
@@ -84,10 +79,9 @@
             </div>
         </div>
     }
-
-    <!-- Applications Table -->
     else
     {
+        @* Applications Table *@
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
 
             <div class="card-header bg-white border-0 p-4">
@@ -104,10 +98,11 @@
 
                     <thead style="background: #F3F6FA;">
                         <tr>
-                            <th class="px-4 py-3">Student</th>
-                            <th class="py-3">University</th>
+                            <th class="px-4 py-3">Id</th>
+                            <th class="py-3">Student Name</th>
+                            <th class="py-3">University Name</th>
                             <th class="py-3">Country</th>
-                            <th class="py-3">Course</th>
+                            <th class="py-3">Course Name</th>
                             <th class="py-3">Application Date</th>
                             <th class="py-3 text-end px-4">Action</th>
                         </tr>
@@ -117,28 +112,18 @@
                         @foreach (var app in applications)
                         {
                             <tr>
-                                <td class="px-4 py-3 fw-semibold">
-                                    @app.StudentName
-                                </td>
-
-                                <td class="py-3">
-                                    @app.University
-                                </td>
-
+                                <td class="px-4 py-3 text-muted">@app.Id</td>
+                                <td class="py-3 fw-semibold">@app.StudentName</td>
+                                <td class="py-3">@app.University</td>
                                 <td class="py-3">
                                     <span class="badge rounded-pill bg-light text-dark border">
                                         @app.Country
                                     </span>
                                 </td>
-
-                                <td class="py-3">
-                                    @app.Course
-                                </td>
-
+                                <td class="py-3">@app.Course</td>
                                 <td class="py-3 text-muted">
                                     @(app.ApplicationDate?.ToString("dd MMM yyyy") ?? "—")
                                 </td>
-
                                 <td class="text-end px-4">
                                     <a href="/student-applications/edit/@app.Id"
                                        class="btn btn-sm btn-outline-primary rounded-pill px-3">

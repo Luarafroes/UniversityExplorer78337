@@ -1,0 +1,105 @@
+﻿@page "/university-details"
+@inject UniversityService UniversityService
+@inject NavigationManager Navigation
+
+<PageTitle>@(university?.Name ?? "University Details")</PageTitle>
+
+<div class="container py-4">
+
+    <a href="/university-explorer" class="btn btn-link text-decoration-none px-0 mb-3">
+        ← Back to University Explorer
+    </a>
+
+    @if (isLoading)
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <p class="text-muted mb-0">Loading university...</p>
+            </div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="alert alert-danger rounded-4">
+            Unable to retrieve data. Please try again later.
+        </div>
+    }
+    else if (university == null)
+    {
+        <div class="alert alert-warning rounded-4">
+            We couldn't find that university.
+        </div>
+    }
+    else
+    {
+        @* Header *@
+        <div class="p-4 p-md-5 mb-4 text-white rounded-4 shadow-sm"
+             style="background: #183653;">
+            <small class="text-uppercase fw-semibold" style="color: #83D6B0;">
+                UNIVERSITY PROFILE
+            </small>
+            <h1 class="fw-bold mt-1 mb-3">@university.Name</h1>
+            <span class="badge rounded-pill bg-light text-dark">
+                @university.Country (@university.AlphaTwoCode)
+            </span>
+        </div>
+
+        @* Reusable details component *@
+        <UniversityDetails University="university" OnClose="GoBack" />
+
+        @* Actions *@
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            @if (university.WebPages.Any())
+            {
+                <a class="btn btn-outline-primary rounded-pill px-4"
+                   href="@university.WebPages[0]" target="_blank" rel="noopener noreferrer">
+                    Visit website ↗
+                </a>
+            }
+            <a class="btn btn-primary rounded-pill px-4"
+               href="/student-applications/create?country=@Uri.EscapeDataString(university.Country)&university=@Uri.EscapeDataString(university.Name)">
+                Apply to this university →
+            </a>
+        </div>
+    }
+</div>
+
+@code {
+    // These two values are read from the URL (?country=...&name=...)
+    [Parameter, SupplyParameterFromQuery(Name = "country")]
+    public string? CountryName { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "name")]
+    public string? UniversityName { get; set; }
+
+    private University? university;
+    private bool isLoading = true;
+    private bool hasError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(CountryName) && !string.IsNullOrWhiteSpace(UniversityName))
+            {
+                var list = await UniversityService.GetUniversitiesAsync(CountryName);
+                university = list.FirstOrDefault(u => u.Name == UniversityName);
+            }
+        }
+        catch
+        {
+            hasError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Called when the Close button in UniversityDetails is clicked
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/university-explorer");
+    }
+}
