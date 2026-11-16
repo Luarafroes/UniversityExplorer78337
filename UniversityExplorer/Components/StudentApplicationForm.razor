@@ -1,4 +1,6 @@
-﻿
+﻿@inject CountryService CountryService
+@inject UniversityService UniversityService
+
 <EditForm Model="Application" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
 
@@ -45,29 +47,90 @@
             University Information
         </h6>
 
+        @* COUNTRY: dropdown loaded from the Countries API *@
         <div class="mb-3">
             <label class="form-label fw-semibold" for="country">
                 Country
             </label>
 
-            <InputText id="country"
-                       class="form-control form-control-lg"
-                       placeholder="Enter country"
-                       @bind-Value="Application.Country" />
+            @if (isLoadingCountries)
+            {
+                <div class="d-flex align-items-center text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span>Loading countries...</span>
+                </div>
+            }
+            else if (countriesError)
+            {
+                @* If the API fails, the user can still type the country *@
+                <InputText id="country"
+                           class="form-control form-control-lg"
+                           placeholder="Enter country"
+                           @bind-Value="Application.Country" />
+                <div class="form-text text-danger">
+                    Unable to load the country list, please type the country name.
+                </div>
+            }
+            else
+            {
+                <InputSelect id="country"
+                             class="form-select form-select-lg"
+                             @bind-Value="Application.Country"
+                             @bind-Value:after="OnCountryChanged">
+                    <option value="">Select country</option>
+                    @foreach (var name in countryNames)
+                    {
+                        <option value="@name">@name</option>
+                    }
+                </InputSelect>
+            }
 
             <ValidationMessage For="() => Application.Country"
                               class="text-danger small" />
         </div>
 
+        @* UNIVERSITY: dropdown loaded from the Universities API for the chosen country *@
         <div class="mb-3">
             <label class="form-label fw-semibold" for="university">
                 University Name
             </label>
 
-            <InputText id="university"
-                       class="form-control form-control-lg"
-                       placeholder="Enter university name"
-                       @bind-Value="Application.University" />
+            @if (string.IsNullOrWhiteSpace(Application.Country))
+            {
+                <select id="university" class="form-select form-select-lg" disabled>
+                    <option>Select a country first</option>
+                </select>
+            }
+            else if (isLoadingUniversities)
+            {
+                <div class="d-flex align-items-center text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span>Loading universities...</span>
+                </div>
+            }
+            else if (universityNames.Count == 0)
+            {
+                @* No list available (empty result or API error): let the user type it *@
+                <InputText id="university"
+                           class="form-control form-control-lg"
+                           placeholder="Enter university name"
+                           @bind-Value="Application.University" />
+                <div class="form-text">
+                    No universities found for this country, please type the name.
+                </div>
+            }
+            else
+            {
+                <InputSelect id="university"
+                             class="form-select form-select-lg"
+                             @bind-Value="Application.University">
+                    <option value="">Select university</option>
+                    @foreach (var name in universityNames)
+                    {
+                        <option value="@name">@name</option>
+                    }
+                </InputSelect>
+            }
 
             <ValidationMessage For="() => Application.University"
                               class="text-danger small" />
@@ -150,6 +213,89 @@
 
     [Parameter]
     public EventCallback<StudentApplication> OnSubmit { get; set; }
+
+    // Data for the two dropdowns
+    private List<string> countryNames = new();
+    private List<string> universityNames = new();
+
+    private bool isLoadingCountries = true;
+    private bool isLoadingUniversities;
+    private bool countriesError;
+
+    // Runs when the form first appears
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var countries = await CountryService.GetCountriesAsync();
+            countryNames = countries.Select(c => c.Name).ToList();
+
+            // Keep an existing country selectable even if it isn't in the API list
+            if (!string.IsNullOrWhiteSpace(Application.Country)
+                && !countryNames.Contains(Application.Country))
+            {
+                countryNames.Insert(0, Application.Country);
+            }
+        }
+        catch
+        {
+            countriesError = true;
+        }
+        finally
+        {
+            isLoadingCountries = false;
+        }
+
+        // If a country is already filled in (Edit page, or "Apply to this university"),
+        // load its universities straight away
+        if (!string.IsNullOrWhiteSpace(Application.Country))
+        {
+            await LoadUniversitiesAsync(Application.Country);
+        }
+    }
+
+    // Runs every time the user picks a different country
+    private async Task OnCountryChanged()
+    {
+        Application.University = ""; // the old university belongs to the old country
+        await LoadUniversitiesAsync(Application.Country);
+    }
+
+    // Second API call: universities for the chosen country
+    private async Task LoadUniversitiesAsync(string country)
+    {
+        universityNames = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(country)) return;
+
+        isLoadingUniversities = true;
+        try
+        {
+            var list = await UniversityService.GetUniversitiesAsync(country);
+
+            universityNames = list
+                .Select(u => u.Name)
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+
+            // Keep an existing university selectable even if it isn't in the list
+            if (universityNames.Count > 0
+                && !string.IsNullOrWhiteSpace(Application.University)
+                && !universityNames.Contains(Application.University))
+            {
+                universityNames.Insert(0, Application.University);
+            }
+        }
+        catch
+        {
+            universityNames = new List<string>(); // shows the "type the name" fallback
+        }
+        finally
+        {
+            isLoadingUniversities = false;
+        }
+    }
 
     private async Task HandleValidSubmit()
     {

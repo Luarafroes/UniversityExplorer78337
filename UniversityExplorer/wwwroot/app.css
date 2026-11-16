@@ -13,7 +13,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -66,4 +66,63 @@ h1:focus {
     .hover-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+/* ---------- Page layout ---------- */
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #F7F9FC;
+}
+
+.app-main {
+    flex: 1;
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 1.5rem 0.75rem;
+}
+
+.app-footer {
+    text-align: center;
+    padding: 1.25rem;
+    font-size: 0.85rem;
+    color: #6c7a89;
+    border-top: 1px solid #E3E8EF;
+    background: #fff;
+}
+
+/* ---------- Top navbar ---------- */
+.app-navbar {
+    background: #183653;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+    .app-navbar .navbar-brand {
+        color: #fff;
+        letter-spacing: 0.3px;
+    }
+
+    .app-navbar .nav-link {
+        color: rgba(255, 255, 255, 0.75);
+        font-weight: 500;
+        padding: 0.5rem 0.9rem;
+        border-radius: 999px;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+        .app-navbar .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* The page you are on */
+        .app-navbar .nav-link.active {
+            color: #183653;
+            background: #83D6B0;
+        }
+
+    .app-navbar .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.4);
     }
