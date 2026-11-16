@@ -1,0 +1,187 @@
+﻿
+@page "/student-applications/edit/{Id:int}"
+@inject StudentApplicationService ApplicationService
+@inject NavigationManager Navigation
+
+<PageTitle>Edit Application | University Explorer</PageTitle>
+
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <span class="text-primary fw-semibold small text-uppercase">
+            APPLICATION MANAGEMENT
+        </span>
+
+        <h1 class="fw-bold mb-2" style="color: #183653;">
+            Edit Application
+        </h1>
+
+        <p class="text-muted mb-0">
+            Update your application information and save your changes.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+
+            @if (isLoading)
+            {
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body text-center py-5">
+                        <div class="spinner-border text-primary mb-3"
+                             role="status"></div>
+                        <p class="text-muted mb-0">
+                            Loading application details...
+                        </p>
+                    </div>
+                </div>
+            }
+            else if (application == null)
+            {
+                <div class="alert alert-danger rounded-4">
+                    <h5 class="fw-bold">Application not found</h5>
+                    Unable to retrieve this application.
+                </div>
+
+                <a href="/student-applications"
+                   class="btn btn-outline-secondary rounded-pill px-4">
+                    Back to applications
+                </a>
+            }
+            else
+            {
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger rounded-4">
+                        @errorMessage
+                    </div>
+                }
+
+                <div class="card border-0 shadow-sm rounded-4">
+
+                    <div class="card-header bg-white border-0 p-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-3 p-3"
+                                 style="background: #E7F1FA;">
+                                <span class="fs-3">✏️</span>
+                            </div>
+
+                            <div>
+                                <h5 class="fw-bold mb-1"
+                                    style="color: #183653;">
+                                    Application Details
+                                </h5>
+                                <p class="text-muted small mb-0">
+                                    Application ID: #@Id
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <StudentApplicationForm
+                            Application="application"
+                            ButtonText="Save Changes"
+                            IsSaving="isSaving"
+                            OnSubmit="UpdateApplication" />
+                    </div>
+
+                </div>
+            }
+
+            <div class="mt-3">
+                <a href="/student-applications"
+                   class="text-decoration-none text-muted">
+                    ← Back to applications
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Information Panel -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm rounded-4"
+                 style="background: #F0F6FA;">
+                <div class="card-body p-4">
+
+                    <div class="fs-1 mb-3">📝</div>
+
+                    <h5 class="fw-bold" style="color: #183653;">
+                        Keep your details updated
+                    </h5>
+
+                    <p class="text-muted small">
+                        You can update your application information whenever
+                        something changes.
+                    </p>
+
+                    <hr />
+
+                    <h6 class="fw-bold" style="color: #183653;">
+                        Before saving
+                    </h6>
+
+                    <ul class="text-muted small ps-3">
+                        <li class="mb-2">Review your student details.</li>
+                        <li class="mb-2">Check your university selection.</li>
+                        <li class="mb-2">Verify your course information.</li>
+                        <li>Make sure all details are correct.</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private StudentApplication? application;
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            application = await ApplicationService.GetApplicationAsync(Id);
+
+            if (application != null)
+            {
+                application.ApplicationDate ??= DateTime.Today;
+            }
+        }
+        catch
+        {
+            application = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task UpdateApplication(StudentApplication updated)
+    {
+        isSaving = true;
+        errorMessage = null;
+
+        try
+        {
+            await ApplicationService.UpdateApplicationAsync(updated);
+            Navigation.NavigateTo("/student-applications");
+        }
+        catch
+        {
+            errorMessage = "Unable to update the application. Please try again.";
+            isSaving = false;
+        }
+    }
+}

@@ -1,0 +1,144 @@
+﻿
+@page "/student-applications/create"
+@inject StudentApplicationService ApplicationService
+@inject NavigationManager Navigation
+
+<PageTitle>New Application | University Explorer</PageTitle>
+
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <span class="text-primary fw-semibold small text-uppercase">
+            APPLICATION MANAGEMENT
+        </span>
+        <h1 class="fw-bold mb-2" style="color: #183653;">
+            Start Your Application
+        </h1>
+        <p class="text-muted mb-0">
+            Take the next step towards your international education journey.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Main Form -->
+        <div class="col-lg-8">
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success rounded-4">
+                    <h5 class="fw-bold">Application submitted!</h5>
+                    @successMessage
+                    <div class="mt-2">
+                        <a href="/student-applications" class="alert-link">
+                            View all applications →
+                        </a>
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger rounded-4">
+                    @errorMessage
+                </div>
+            }
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 p-4">
+                    <h5 class="fw-bold mb-1" style="color: #183653;">
+                        Application Details
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        Complete the information below to submit your application.
+                    </p>
+                </div>
+
+                <div class="card-body px-4 pb-4">
+                    <StudentApplicationForm
+                        @key="application"
+                        Application="application"
+                        ButtonText="Submit Application"
+                        IsSaving="isSaving"
+                        OnSubmit="SubmitApplication" />
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="/student-applications"
+                   class="text-decoration-none text-muted">
+                    ← Back to applications
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Information Panel -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm rounded-4"
+                 style="background: #F0F6FA;">
+                <div class="card-body p-4">
+
+                    <div class="fs-1 mb-3">🎓</div>
+
+                    <h5 class="fw-bold" style="color: #183653;">
+                        Your future starts here
+                    </h5>
+
+                    <p class="text-muted small">
+                        Keep your application details accurate and up to date
+                        so you can easily manage your university applications.
+                    </p>
+
+                    <hr />
+
+                    <h6 class="fw-bold" style="color: #183653;">
+                        Helpful reminders
+                    </h6>
+
+                    <ul class="text-muted small ps-3">
+                        <li class="mb-2">Check your student information.</li>
+                        <li class="mb-2">Choose the correct university.</li>
+                        <li class="mb-2">Enter your intended course.</li>
+                        <li>Review your details before submitting.</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private StudentApplication application = new();
+    private bool isSaving;
+    private string? successMessage;
+    private string? errorMessage;
+
+    private async Task SubmitApplication(StudentApplication newApplication)
+    {
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            await ApplicationService.CreateApplicationAsync(newApplication);
+
+            successMessage = "Your application has been submitted successfully!";
+
+            application = new StudentApplication();
+        }
+        catch
+        {
+            errorMessage = "Unable to submit the application. Please try again.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

@@ -1,7 +1,140 @@
-﻿@page "/"
+﻿
+@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>University Explorer | Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container py-5">
 
-Welcome to your new app.
+    <!-- Hero Section -->
+    <section class="p-5 mb-5 rounded-4 text-white shadow"
+             style="background: linear-gradient(120deg, #142D4E, #245B83);">
+
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge rounded-pill bg-light text-primary mb-3 px-3 py-2">
+                    YOUR FUTURE STARTS HERE
+                </span>
+
+                <h1 class="display-4 fw-bold mb-3">
+                    Discover Your Next
+                    <span style="color: #83D6B0;">Opportunity.</span>
+                </h1>
+
+                <p class="fs-5 mb-4" style="max-width: 650px; color: #E0EAF2;">
+                    Explore universities around the world, discover new
+                    destinations and manage your applications all in one place.
+                </p>
+
+                <a class="btn btn-light btn-lg rounded-pill px-4 fw-semibold"
+                   href="/university-explorer">
+                    Explore Universities →
+                </a>
+            </div>
+
+            <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                <div class="display-1">🎓</div>
+                <p class="fw-semibold mb-0">Your journey. Your future.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Welcome Section -->
+    <div class="mb-4">
+        <h2 class="fw-bold" style="color: #183653;">Everything you need</h2>
+        <p class="text-muted">
+            Find the right university and keep your application journey organised.
+        </p>
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+
+        <!-- University Explorer -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 d-flex flex-column">
+
+                    <div class="rounded-3 p-3 mb-3 d-inline-flex align-items-center justify-content-center"
+                         style="background: #E7F1FA; width: 60px; height: 60px;">
+                        <span class="fs-3">🌍</span>
+                    </div>
+
+                    <h5 class="fw-bold">University Explorer</h5>
+
+                    <p class="text-muted">
+                        Discover universities around the world.
+                        Search by country and explore available institutions.
+                    </p>
+
+                    <a href="/university-explorer"
+                       class="btn btn-outline-primary rounded-pill mt-auto">
+                        Explore Universities →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 d-flex flex-column">
+
+                    <div class="rounded-3 p-3 mb-3 d-inline-flex align-items-center justify-content-center"
+                         style="background: #E9F5EF; width: 60px; height: 60px;">
+                        <span class="fs-3">📋</span>
+                    </div>
+
+                    <h5 class="fw-bold">My Applications</h5>
+
+                    <p class="text-muted">
+                        Keep track of your submitted university applications
+                        and update your information whenever necessary.
+                    </p>
+
+                    <a href="/student-applications"
+                       class="btn btn-outline-primary rounded-pill mt-auto">
+                        View Applications →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Application -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 d-flex flex-column">
+
+                    <div class="rounded-3 p-3 mb-3 d-inline-flex align-items-center justify-content-center"
+                         style="background: #FFF3E5; width: 60px; height: 60px;">
+                        <span class="fs-3">✍️</span>
+                    </div>
+
+                    <h5 class="fw-bold">New Application</h5>
+
+                    <p class="text-muted">
+                        Ready to take the next step?
+                        Start a new application to your chosen university.
+                    </p>
+
+                    <a href="/student-applications/create"
+                       class="btn btn-outline-primary rounded-pill mt-auto">
+                        Apply Now →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Message -->
+    <div class="text-center mt-5 py-4">
+        <h5 class="fw-semibold" style="color: #183653;">
+            Your international education journey starts here.
+        </h5>
+        <p class="text-muted mb-0">
+            Explore. Discover. Apply.
+        </p>
+    </div>
+
+</div>
+```

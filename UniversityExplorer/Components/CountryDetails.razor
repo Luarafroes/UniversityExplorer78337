@@ -1,0 +1,54 @@
+﻿
+<div class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden">
+
+    <div class="p-4" style="background: #F0F6FA;">
+        <span class="text-primary fw-semibold small text-uppercase">
+            DESTINATION
+        </span>
+
+        <h4 class="fw-bold mt-2 mb-0" style="color: #183653;">
+            @Country.Name
+        </h4>
+
+        @if (!string.IsNullOrWhiteSpace(Country.Flags?.Png))
+        {
+            <img src="@Country.Flags.Png"
+                 alt="Flag of @Country.Name"
+                 class="mt-3 rounded shadow-sm"
+                 style="height: 55px; max-width: 100px; object-fit: cover;" />
+        }
+    </div>
+
+    <div class="card-body p-4">
+
+        <h6 class="fw-bold mb-3" style="color: #183653;">
+            Country Information
+        </h6>
+
+        <div class="mb-3">
+            <small class="text-muted d-block">Capital</small>
+            <strong>@(Country.Capital ?? "N/A")</strong>
+        </div>
+
+        <div class="mb-3">
+            <small class="text-muted d-block">Region</small>
+            <strong>@(Country.Region ?? "N/A")</strong>
+        </div>
+
+        <div class="mb-3">
+            <small class="text-muted d-block">Population</small>
+            <strong>@Country.Population.ToString("N0")</strong>
+        </div>
+
+        <div>
+            <small class="text-muted d-block">Country Code / Flag</small>
+            <strong>@(Country.Flag ?? "N/A")</strong>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Country Country { get; set; } = default!;
+}

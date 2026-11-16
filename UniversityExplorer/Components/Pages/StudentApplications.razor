@@ -1,0 +1,187 @@
+﻿
+@page "/student-applications"
+@inject StudentApplicationService ApplicationService
+
+<PageTitle>My Applications | University Explorer</PageTitle>
+
+<div class="container py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <span class="text-primary fw-semibold small text-uppercase">
+                APPLICATION MANAGEMENT
+            </span>
+            <h1 class="fw-bold mb-1" style="color: #183653;">
+                My Applications
+            </h1>
+            <p class="text-muted mb-0">
+                Manage and keep track of your university applications.
+            </p>
+        </div>
+
+        <a href="/student-applications/create"
+           class="btn btn-primary rounded-pill px-4 py-2">
+            + New Application
+        </a>
+    </div>
+
+    <!-- Application Counter -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4 d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3"
+                 style="background: #E7F1FA;">
+                <span class="fs-3">📋</span>
+            </div>
+            <div>
+                <h3 class="fw-bold mb-0" style="color: #183653;">
+                    @applications.Count
+                </h3>
+                <span class="text-muted">Total Applications</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading)
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-3"
+                     role="status"></div>
+                <p class="text-muted mb-0">
+                    Loading your applications...
+                </p>
+            </div>
+        </div>
+    }
+
+    <!-- Error State -->
+    else if (hasError)
+    {
+        <div class="alert alert-danger rounded-4">
+            <h5 class="fw-bold">Something went wrong</h5>
+            Unable to retrieve your applications. Please try again later.
+        </div>
+    }
+
+    <!-- Empty State -->
+    else if (applications.Count == 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <div class="display-3 mb-3">🎓</div>
+                <h4 class="fw-bold" style="color: #183653;">
+                    No applications yet
+                </h4>
+                <p class="text-muted mb-4">
+                    Start your journey by applying to your first university.
+                </p>
+                <a href="/student-applications/create"
+                   class="btn btn-primary rounded-pill px-4">
+                    Create Your First Application
+                </a>
+            </div>
+        </div>
+    }
+
+    <!-- Applications Table -->
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+            <div class="card-header bg-white border-0 p-4">
+                <h5 class="fw-bold mb-1" style="color: #183653;">
+                    Application Records
+                </h5>
+                <p class="text-muted small mb-0">
+                    Your submitted university applications.
+                </p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead style="background: #F3F6FA;">
+                        <tr>
+                            <th class="px-4 py-3">Student</th>
+                            <th class="py-3">University</th>
+                            <th class="py-3">Country</th>
+                            <th class="py-3">Course</th>
+                            <th class="py-3">Application Date</th>
+                            <th class="py-3 text-end px-4">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var app in applications)
+                        {
+                            <tr>
+                                <td class="px-4 py-3 fw-semibold">
+                                    @app.StudentName
+                                </td>
+
+                                <td class="py-3">
+                                    @app.University
+                                </td>
+
+                                <td class="py-3">
+                                    <span class="badge rounded-pill bg-light text-dark border">
+                                        @app.Country
+                                    </span>
+                                </td>
+
+                                <td class="py-3">
+                                    @app.Course
+                                </td>
+
+                                <td class="py-3 text-muted">
+                                    @(app.ApplicationDate?.ToString("dd MMM yyyy") ?? "—")
+                                </td>
+
+                                <td class="text-end px-4">
+                                    <a href="/student-applications/edit/@app.Id"
+                                       class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        Edit →
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="card-footer bg-white border-0 px-4 py-3">
+                <span class="text-muted small">
+                    Showing @applications.Count application(s)
+                </span>
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@code {
+    private List<StudentApplication> applications = new();
+    private bool isLoading = true;
+    private bool hasError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var all = await ApplicationService.GetApplicationsAsync();
+            applications = all.OrderByDescending(a => a.Id).ToList();
+        }
+        catch
+        {
+            hasError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,59 @@
+﻿
+<div class="card h-100 border-0 shadow-sm rounded-4 university-card">
+
+    <div class="card-body p-4 d-flex flex-column">
+
+        <div class="d-flex align-items-center justify-content-center rounded-3 mb-3"
+             style="width: 48px; height: 48px; background: #E7F1FA;">
+            <span class="fs-4">🏛️</span>
+        </div>
+
+        <h5 class="fw-bold mb-2" style="color: #183653;">
+            @University.Name
+        </h5>
+
+        <p class="text-muted small mb-3">
+            🌍 @University.Country
+        </p>
+
+        <div class="mb-3">
+            <small class="text-muted d-block mb-1">
+                Official Website
+            </small>
+
+            @if (!string.IsNullOrWhiteSpace(University.WebPages?.FirstOrDefault()))
+            {
+                <a href="@University.WebPages.First()"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="small text-decoration-none text-primary"
+                   @onclick:stopPropagation="true">
+                    Visit Website ↗
+                </a>
+            }
+            else
+            {
+                <span class="text-muted small">No website available</span>
+            }
+        </div>
+
+        <button class="btn btn-outline-primary rounded-pill mt-auto"
+                @onclick="HandleClick">
+            View Details →
+        </button>
+
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public University University { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<University> OnSelect { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnSelect.InvokeAsync(University);
+    }
+}

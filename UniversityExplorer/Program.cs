@@ -1,5 +1,6 @@
 using UniversityExplorer.Components;
 using UniversityExplorer.Services;
+using UniversityExplorer.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddHttpClient<UniversityService>(client =>
 
 builder.Services.AddHttpClient<StudentApplicationService>(client =>
     client.BaseAddress = new Uri("https://edutots.net/api/"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
