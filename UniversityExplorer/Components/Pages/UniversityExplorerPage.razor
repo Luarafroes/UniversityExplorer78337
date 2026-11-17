@@ -42,7 +42,7 @@
     </div>
 </div>
 
-@* Country details + universities (the mashup) *@
+@* Show the country information and its universities *@
 @if (selectedCountry != null)
 {
     <div class="row g-4">
@@ -74,13 +74,27 @@
             }
             else
             {
-                var filtered = FilteredUniversities.ToList();
+                var filtered = FilteredUniversities;
+                var totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)PageSize));
+
+                // If there are fewer pages after searching, go back to the last available page
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                var pageItems = filtered.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+                var firstShown = filtered.Count == 0 ? 0 : (currentPage - 1) * PageSize + 1;
+                var lastShown = (currentPage - 1) * PageSize + pageItems.Count;
 
                 <input class="form-control form-control-lg mb-2"
                        @bind="SearchText" @bind:event="oninput"
                        placeholder="Search university..." />
 
-                <p class="text-muted small">Showing @filtered.Count of @universities.Count universities</p>
+                <p class="text-muted small">
+                    Showing @firstShown–@lastShown of @filtered.Count universities
+                    @if (filtered.Count != universities.Count)
+                    {
+                        <span>(filtered from @universities.Count)</span>
+                    }
+                </p>
 
                 @if (filtered.Count == 0)
                 {
@@ -89,13 +103,45 @@
                 else
                 {
                     <div class="row row-cols-1 row-cols-md-2 g-3">
-                        @foreach (var uni in filtered)
+                        @foreach (var uni in pageItems)
                         {
                             <div class="col">
                                 <UniversityCard University="uni" OnSelect="ShowUniversityDetails" />
                             </div>
                         }
                     </div>
+
+                    @* Buttons to move between pages *@
+                    @if (totalPages > 1)
+                    {
+                        <nav aria-label="Universities pages" class="mt-4">
+                            <ul class="pagination justify-content-center flex-wrap mb-0">
+
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(currentPage - 1)">
+                                        ‹ Previous
+                                    </button>
+                                </li>
+
+                                @foreach (var p in VisiblePages(totalPages))
+                                {
+                                    <li class="page-item @(p == currentPage ? "active" : "")">
+                                        <button class="page-link" @onclick="() => GoToPage(p)">@p</button>
+                                    </li>
+                                }
+
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(currentPage + 1)">
+                                        Next ›
+                                    </button>
+                                </li>
+
+                            </ul>
+                            <p class="text-center text-muted small mt-2 mb-0">
+                                Page @currentPage of @totalPages
+                            </p>
+                        </nav>
+                    }
                 }
             }
         </div>
@@ -109,6 +155,9 @@ else if (!isLoadingCountries && !countriesError)
 }
 
 @code {
+    // Number of universities to show on each page
+    private const int PageSize = 12;
+
     private List<Country> countries = new();
     private List<University> universities = new();
 
@@ -120,14 +169,27 @@ else if (!isLoadingCountries && !countriesError)
     private bool countriesError;
     private bool universitiesError;
 
-    // Typing in the search box updates this on every key press
-    public string SearchText { get; set; } = "";
+    private int currentPage = 1;
+    private string searchText = "";
 
-    // The list after applying the search text
-    private IEnumerable<University> FilteredUniversities =>
-        universities.Where(u => u.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+    // This updates the search while the user is typing and resets the page
+    public string SearchText
+    {
+        get => searchText;
+        set
+        {
+            searchText = value;
+            currentPage = 1;
+        }
+    }
 
-    // Runs once when the page opens: load all countries
+    // Get the universities that match what the user typed
+    private List<University> FilteredUniversities =>
+        universities
+            .Where(u => u.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+    // Load the countries when the page first opens
     protected override async Task OnInitializedAsync()
     {
         try
@@ -144,20 +206,21 @@ else if (!isLoadingCountries && !countriesError)
         }
     }
 
-    // Runs every time the user picks a country
+    // This method runs when a different country is selected
     private async Task OnCountryChanged(ChangeEventArgs e)
     {
         selectedCountryName = e.Value?.ToString();
         selectedCountry = countries.FirstOrDefault(c => c.Name == selectedCountryName);
 
-        // Reset everything that belonged to the previous country
+        // Clear the old universities and search when changing countries
         universities = new List<University>();
         SearchText = "";
+        currentPage = 1;
         universitiesError = false;
 
         if (selectedCountry == null) return;
 
-        // Second API call: universities for this country
+        // Get the universities for the selected country
         isLoadingUniversities = true;
         try
         {
@@ -173,7 +236,22 @@ else if (!isLoadingCountries && !countriesError)
         }
     }
 
-    // EventCallback from UniversityCard: go straight to the full page
+    // Change to the page selected by the user
+    private void GoToPage(int page)
+    {
+        currentPage = page;
+    }
+
+    // Show up to 5 page numbers at a time
+    private IEnumerable<int> VisiblePages(int totalPages)
+    {
+        var start = Math.Max(1, currentPage - 2);
+        var end = Math.Min(totalPages, start + 4);
+        start = Math.Max(1, end - 4);
+        return Enumerable.Range(start, end - start + 1);
+    }
+
+    // When a university card is clicked, open its details page
     private void ShowUniversityDetails(University university)
     {
         Navigation.NavigateTo(
