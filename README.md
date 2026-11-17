@@ -5,7 +5,7 @@ to help users explore universities around the world, and lets users create and
 manage university applications using the Edutots Student Application API.
 
 **Module:** Full Stack Development | **Assessment:** CA2 (20%) | **Type:** Individual
-**Author:** <<< LUARA FROES >>> | **Student ID:** <<< 78337 >>>
+**Author:** LUARA FROES | **Student ID:** 78337
 
 ## Features
 
