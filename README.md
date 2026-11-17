@@ -30,7 +30,7 @@ manage university applications using the Edutots Student Application API.
 
 ## Technologies
 
-- Blazor Web App (Server interactivity), .NET <<< 8 OR 10 >>>
+- Blazor Web App (Server interactivity), .NET 10
 - C#, `HttpClient`, Data Annotations
 - Bootstrap
 - Built with Visual Studio
