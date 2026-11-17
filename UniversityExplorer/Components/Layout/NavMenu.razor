@@ -11,27 +11,30 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="@NavMenuCssClass navbar-collapse" @onclick="CloseMenu">
+        <div class="@NavMenuCssClass navbar-collapse">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-                <li class="nav-item">
+                <li class="nav-item" @onclick="CloseMenu">
                     <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                         Home
                     </NavLink>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" @onclick="CloseMenu">
                     <NavLink class="nav-link" href="university-explorer">
                         University Explorer
                     </NavLink>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" @onclick="CloseMenu">
                     <NavLink class="nav-link" href="student-applications" Match="NavLinkMatch.All">
                         Student Applications
                     </NavLink>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" @onclick="CloseMenu">
                     <NavLink class="nav-link" href="student-applications/create">
                         Create Student Application
                     </NavLink>
+                </li>
+                <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                    <ThemeToggle />
                 </li>
             </ul>
         </div>

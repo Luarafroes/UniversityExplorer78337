@@ -126,3 +126,83 @@ h1:focus {
     .app-navbar .navbar-toggler {
         border-color: rgba(255, 255, 255, 0.4);
     }
+/* ---------- Theme toggle button ---------- */
+.theme-toggle {
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    background: transparent;
+}
+
+    .theme-toggle:hover {
+        color: #183653;
+        background: #83D6B0;
+        border-color: #83D6B0;
+    }
+
+/* ---------- Dark mode ---------- */
+
+/* Page, navbar and footer */
+[data-bs-theme="dark"] .app-shell {
+    background: #0f151c;
+}
+
+[data-bs-theme="dark"] .app-navbar {
+    background: #0e2236;
+}
+
+[data-bs-theme="dark"] .app-footer {
+    background: #161d26;
+    color: #9aa7b5;
+    border-top-color: #263140;
+}
+
+/* Links (:where keeps the specificity low, so buttons and nav links keep their own colors) */
+:where([data-bs-theme="dark"]) a,
+:where([data-bs-theme="dark"]) .btn-link {
+    color: #6ea8fe;
+}
+
+/* Primary buttons */
+[data-bs-theme="dark"] .btn-primary {
+    color: #fff;
+    background-color: #2f6db5;
+    border-color: #2f6db5;
+}
+
+    [data-bs-theme="dark"] .btn-primary:hover,
+    [data-bs-theme="dark"] .btn-primary:focus {
+        background-color: #3a7fd0;
+        border-color: #3a7fd0;
+    }
+
+/* Bootstrap helper classes used on your pages */
+[data-bs-theme="dark"] .bg-white {
+    background-color: var(--bs-body-bg) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: var(--bs-tertiary-bg) !important;
+}
+
+[data-bs-theme="dark"] .text-dark {
+    color: var(--bs-body-color) !important;
+}
+
+/* Fixed colors written directly in the markup (style="...") */
+[data-bs-theme="dark"] [style*="color: #183653" i] {
+    color: #9fc5ea !important;
+}
+
+[data-bs-theme="dark"] [style*="background: #E7F1FA" i] {
+    background: #223447 !important;
+}
+
+[data-bs-theme="dark"] [style*="background: #F3F6FA" i] {
+    background: #1d2733 !important;
+}
+
+[data-bs-theme="dark"] [style*="background: #F0F6FA" i] {
+    background: #18222d !important;
+}
